@@ -3,6 +3,7 @@ const morgan = require('morgan')
 const helmet = require('helmet')
 const compression = require('compression')
 const app = express()
+const { checkOverload } = require('./helpers/check.connect')
 
 
 
@@ -13,6 +14,9 @@ app.use(compression())  // nén data -> giảm tải dung lượng khi request v
 
 
 // init db
+require('./dbs/init.mongodb')
+
+checkOverload()
 
 // init routes
 app.get('/', (req, res, next) => {
