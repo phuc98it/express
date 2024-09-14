@@ -45,7 +45,7 @@ class AccessService {
                     publicKey,
                     privateKey
                 })
-
+                
                 if (!keyStore) {
                     return {
                         code: 'xxx',
@@ -141,8 +141,6 @@ class AccessService {
             email
         }, publicKey, privateKey)
 
-        console.log("4444-Tokens ::: ", tokens)
-
         // 5. ...
         await KeyTokenService.createKeyToken({
             userId: foundShop._id,
@@ -158,6 +156,11 @@ class AccessService {
             }),
             tokens
         }
+    }
+
+    static logout = async (keyStore) => {
+        const delKey = await KeyTokenService.removeKeyById(keyStore._id)
+        return delKey
     }
 }
 

@@ -25,15 +25,20 @@ class KeyTokenService {
                 refreshTokenUsed: []
             }, options = { upsert: true, new: true }    // -> upsert : true - ám chỉ chưa có thì tạo mới, có rồi thì update.
 
-
             const tokens = await keyTokenModel.findOneAndUpdate(filter, update, options)
-
-            console.log("5555-Tokens ::: ", tokens)
 
             return tokens ? tokens.publicKey : null
         } catch (error) {
             return error
         }
+    }
+
+    static findByUserId = async(userId) => {
+        return await keyTokenModel.findOne({user: userId}).lean()
+    }
+
+    static removeKeyById = async(_id) => {
+        return await keyTokenModel.deleteOne({_id})
     }
 }
 

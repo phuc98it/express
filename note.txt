@@ -4,6 +4,14 @@ publicKey : khi được generate bởi thuật toán bất đối xưng
 
 Khi đoạn code bị lặp 2 lần trở lên => phải chuyển đổi viết Utils.
 
+== Authetication ==
++) x-api-key    : phân quyền và cho phép truy cập vào hệ thống.
++) x-client-id  : Who ?
++) authorization: chìa khóa - accessToken
+    x-api-key -> apiKey -> permission 
+    x-client-id ? -> User -> KeyStore
+    authorization -> accessToken            => JWT.verify(accessToken, KeyStore.publicKey)
+
 1. Tạo ra "key-permission" trước.
     +) Key          : đại diện cho mỗi 1 Shop.
     +) permission   : quyền hạn đối với Account.
