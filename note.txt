@@ -1,0 +1,3 @@
+publicKey : khi được generate bởi thuật toán bất đối xưng
+    -> key đang dưới dạng Buffer (chưa được hash)
+    => phải chuyển về string

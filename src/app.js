@@ -6,11 +6,14 @@ const app = express()
 const { checkOverload } = require('./helpers/check.connect')
 
 
-
 // init middlewares
-app.use(morgan("dev"))  // option : compile | common | short | tiny | dev
-app.use(helmet())       // ngăn chặn 1 số thông tin ngậy cảm server - tránh lộ info để hacker phá
-app.use(compression())  // nén data -> giảm tải dung lượng khi request và response
+app.use(morgan("dev"))          // option : compile | common | short | tiny | dev
+app.use(helmet())               // ngăn chặn 1 số thông tin ngậy cảm server - tránh lộ info để hacker phá
+app.use(compression())          // nén data -> giảm tải dung lượng khi request và response
+app.use(express.json())         // thay thế cho body-parser
+app.use(express.urlencoded({    
+    extended: true
+}))
 
 
 // init db
@@ -19,11 +22,8 @@ require('./dbs/init.mongodb')
 checkOverload()
 
 // init routes
-app.get('/', (req, res, next) => {
-    return res.status(200).json({
-        message: "Welcome Dev"
-    })
-})
+app.use('/', require('./routes'))
+
 
 // handling error
 

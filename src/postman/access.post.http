@@ -1,0 +1,10 @@
+@url_dev=localhost:3002/v1/api
+
+POST {{url_dev}}/shop/sigup
+Content-Type: application/json
+
+{
+    "name": "Shop TIPS",
+    "email": "shoptipjs@gmail.com",
+    "password": "abc123"
+}
