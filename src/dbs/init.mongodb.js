@@ -23,7 +23,6 @@ class Database {
         ).catch(
             err => console.log(`Error Connect!`)
         )
-
     }
 
     static getInstance() {
