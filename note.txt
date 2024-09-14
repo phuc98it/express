@@ -1,3 +1,9 @@
 publicKey : khi được generate bởi thuật toán bất đối xưng
     -> key đang dưới dạng Buffer (chưa được hash)
     => phải chuyển về string
+
+1. Tạo ra "key-permission" trước.
+    +) Key          : đại diện cho mỗi 1 Shop.
+    +) permission   : quyền hạn đối với Account.
+
+2. Gán "key-permission" vào Headers - khi tạo Account cho Shop/Doanh nghiệp.
