@@ -23,13 +23,13 @@ class AccessService {
             if (hodelShop) {
                 throw new BadRequestError('Error: Shop already  registered!')
             }
+
             const passwordHash = await bcrypt.hash(password, 10)
             const newShop = await shopModel.create({
                 name, email, password: passwordHash, roles: [RoleShop.SHOP]
             })
 
             // === After register account => redirect to Login ref ===
-
             if(newShop) {
                 const privateKey = crypto.randomBytes(64).toString('hex')
                 const publicKey = crypto.randomBytes(64).toString('hex')
