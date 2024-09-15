@@ -4,9 +4,9 @@ const shopModel = require("../models/shop.model")
 const bcrypt = require('bcrypt')
 const crypto = require('node:crypto')
 const KeyTokenService = require("./keyToken.service")
-const { createTokenPair } = require('../auth/auth.Utils')
+const { createTokenPair, verifyJWT } = require('../auth/auth.Utils')
 const { getInfoData } = require('../utils/index')
-const { AuthFailureError, BadRequestError } = require("../core/error.response")
+const { AuthFailureError, BadRequestError, ForbiddenError } = require("../core/error.response")
 const { findByEmail } = require('./shop.service')
 
 const RoleShop = {
@@ -154,6 +154,49 @@ class AccessService {
                 fields: ['_id', 'name', 'email'],
                 object: foundShop
             }),
+            tokens
+        }
+    }
+
+    static handlerRefreshToken = async (refreshToken) => {
+        // check Token đã sử dụng chưa ?
+        const foundToken = await KeyTokenService.findByRefreshTokenUsed(refreshToken)
+        
+        // Có -> handle
+        if(foundToken) {
+            // Decode xem mày là thằng nào
+            const {userId, email} = await verifyJWT(refreshToken, foundToken.privateKey)
+            console.log("[1] -- ", {userId, email})
+
+            // Xóa tất cả token trong keyStore
+            await KeyTokenService.deleteKeyId(userId)
+            throw new ForbiddenError('Something wrong happend!! Please relogin')
+        }
+
+        // Không có -> Ngon
+        const holderToken = await KeyTokenService.findByRefreshToken(refreshToken)
+        if(!holderToken) throw new AuthFailureError('Shop not register!')
+        
+        // Verify Token
+        const {userId, email} = await verifyJWT(refreshToken, holderToken.privateKey)
+        console.log("[2] -- ", {userId, email})
+
+        // check UserId
+        const foundShop = await findByEmail({email})
+        if(!foundShop) throw new AuthFailureError('Shop not registerd!')
+
+        // create 1 Cặp mới.
+        const tokens = await createTokenPair(
+            {userId, email},
+            holderToken.publicKey,
+            holderToken.privateKey
+        )
+
+        // update token
+        await KeyTokenService.updateRefreshToken(holderToken._id, tokens, refreshToken)
+        
+        return {
+            user: {userId, email},
             tokens
         }
     }

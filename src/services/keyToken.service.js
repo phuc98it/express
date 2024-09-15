@@ -40,6 +40,25 @@ class KeyTokenService {
     static removeKeyById = async(_id) => {
         return await keyTokenModel.deleteOne({_id})
     }
+
+    static findByRefreshTokenUsed = async (refreshToken) => {
+        return await keyTokenModel.findOne({refreshTokenUsed : refreshToken}).lean()
+    }
+
+    static findByRefreshToken = async (refreshToken) => {
+        return await keyTokenModel.findOne({refreshToken}).lean()
+    }
+
+    static deleteKeyId = async (userId) => {
+        return await keyTokenModel.deleteOne({user : userId})
+    }
+
+    static updateRefreshToken = async (_id, tokens, refreshToken) => {
+        return await keyTokenModel.updateOne({ _id }, {
+            $set: { refreshToken: tokens.refreshToken },
+            $addToSet: { refreshTokenUsed: refreshToken }       // add token đã được sử  dụng -> [...]
+        });
+    }
 }
 
 module.exports = KeyTokenService
