@@ -12,6 +12,12 @@ Khi đoạn code bị lặp 2 lần trở lên => phải chuyển đổi viết 
     x-client-id ? -> User -> KeyStore
     authorization -> accessToken            => JWT.verify(accessToken, KeyStore.publicKey)
 
+== Request ==
++) keyStore
++) user {userId, email}
++) refreshToken
++) shopId <=> userId
+
 1. Tạo ra "key-permission" trước.
     +) Key          : đại diện cho mỗi 1 Shop.
     +) permission   : quyền hạn đối với Account.
