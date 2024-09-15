@@ -166,7 +166,6 @@ class AccessService {
         if(foundToken) {
             // Decode xem mày là thằng nào
             const {userId, email} = await verifyJWT(refreshToken, foundToken.privateKey)
-            console.log("[1] -- ", {userId, email})
 
             // Xóa tất cả token trong keyStore
             await KeyTokenService.deleteKeyId(userId)
@@ -179,7 +178,6 @@ class AccessService {
         
         // Verify Token
         const {userId, email} = await verifyJWT(refreshToken, holderToken.privateKey)
-        console.log("[2] -- ", {userId, email})
 
         // check UserId
         const foundShop = await findByEmail({email})
@@ -197,6 +195,39 @@ class AccessService {
         
         return {
             user: {userId, email},
+            tokens
+        }
+    }
+
+    static handlerRefreshTokenV2 = async ({
+        keyStore,
+        user,
+        refreshToken
+    }) => {
+        const { email, userId } = user;
+        if(keyStore.refreshTokensUsed.includes(refreshToken)) {
+            await KeyTokenService.deleteKeyId(userId)
+            throw new ForbiddenError('Something wrong happed !! Please relogin')
+        }
+
+        if(keyStore.refreshToken !== refreshToken) throw new AuthFailureError('Shop not registed!')
+
+        // check UserId
+        const foundShop = await findByEmail({email})
+        if(!foundShop) throw new AuthFailureError('Shop not registerd!')
+
+        // create 1 Cặp mới.
+        const tokens = await createTokenPair(
+            {userId, email},
+            keyStore.publicKey,
+            keyStore.privateKey
+        )
+
+        // update token
+        await KeyTokenService.updateRefreshToken(keyStore._id, tokens, refreshToken)
+        
+        return {
+            user,
             tokens
         }
     }
