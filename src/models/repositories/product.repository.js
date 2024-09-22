@@ -10,7 +10,7 @@ const findAllDraftsForShop = async ({query, limit, skip}) => {
 
 const publishProductByShop = async ({product_shop, product_id}) => {
     const foundShop = await product.findOne({
-        product_shop,   //: new Types.ObjectId(product_shop),
+        product_shop,               //: new Types.ObjectId(product_shop),
         _id: product_id             //: new Types.ObjectId(product_id)
     })
 
@@ -26,7 +26,7 @@ const publishProductByShop = async ({product_shop, product_id}) => {
 
 const unpublishProductByShop = async ({product_shop, product_id}) => {
     const foundShop = await product.findOne({
-        product_shop,   //: new Types.ObjectId(product_shop),
+        product_shop,               //: new Types.ObjectId(product_shop),
         _id: product_id             //: new Types.ObjectId(product_id)
     })
 
@@ -72,9 +72,7 @@ const queryProduct = async ({query, limit, skip}) => {
 }
 
 const searchProducts = async ({ keyInsert }) => {
-    console.log("keySearch ::: ", keyInsert)
     const regexSearch = new RegExp(keyInsert)
-    console.log("regexSearch ::: ", regexSearch)
     const result = await product.find(
         {
             isPublished: true,
@@ -85,6 +83,18 @@ const searchProducts = async ({ keyInsert }) => {
 
     return result
 }
+
+const updateProductById = async ({
+    productId,
+    bodyUpdate,
+    model,
+    isNew = true
+}) => {
+    return await model.findByIdAndUpdate(productId, bodyUpdate, {
+        new: isNew
+    })   
+}
+
 module.exports = {
     findAllDraftsForShop,
     findAllPublishForShop,
@@ -92,5 +102,6 @@ module.exports = {
     unpublishProductByShop,
     searchProducts,
     findAllProducts,
-    findProduct
+    findProduct,
+    updateProductById
 }

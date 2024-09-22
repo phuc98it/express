@@ -23,6 +23,7 @@ router.post('/', asyncHandler(productController.createProductController))
 // Set update
 router.put('/publish/:id', asyncHandler(productController.publishProductByShop))
 router.put('/unpublish/:id', asyncHandler(productController.unpublishProductByShop))
+router.patch('/:productId', asyncHandler(productController.updateProduct))
 
 
 // query

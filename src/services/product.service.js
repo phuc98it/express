@@ -2,7 +2,8 @@
 
 const { product, clothing, electronic, furniture } = require('../models/product.model')
 const { BadRequestError } = require('../core/error.response')
-const { findAllDraftsForShop, publishProductByShop, findAllPublishForShop, unpublishProductByShop, searchProducts, findAllProducts, findProduct } = require('../models/repositories/product.repository')
+const { findAllDraftsForShop, publishProductByShop, findAllPublishForShop, unpublishProductByShop, searchProducts, findAllProducts, findProduct, updateProductById } = require('../models/repositories/product.repository')
+const { removeUndefinedObject, updateNestedObjectParser } = require('../utils')
 
 // Defin Factory class to create product
 class ProductFactory {
@@ -19,6 +20,19 @@ class ProductFactory {
         }
     }
 
+    static async updateProduct(type, productId, payload) {
+        switch(type) {
+            case "Electronic":
+                return new Electronic(payload).updateProduct()
+            case "Clothing":
+                return new Clothing(payload).updateProduct(productId)
+            case "Furniture":
+                return new Furniture(payload).updateProduct()
+            default:
+                throw new BadRequestError(`Invalid Product Types ${type}`)
+        }
+    }
+
     /** Master
     static productRegistry = {}  // key-class
     static registerProductType(type, classRef) {
@@ -30,6 +44,13 @@ class ProductFactory {
         if(!productClass) throw new BadRequestError(`Invalid Product Types ${type}`)
 
         return new productClass(payload).createProduct()
+    }
+
+    static async updateProduct(type, payload) {
+        const productClass = ProductFactory.productRegistry[type]
+        if(!productClass) throw new BadRequestError(`Invalid Product Types ${type}`)
+
+        return new productClass(payload).updateProduct()
     }
 
     // When add Class spec -> not edit code Logic 
@@ -94,6 +115,10 @@ class ProductFactory {
     static async findProduct({product_id}) {
         return await findProduct({product_id, unSelect: ['__v', 'product_variations']})
     }
+
+    // static async updateProducts(params) {
+        
+    // }
 }
 
 // Define basic product class
@@ -124,21 +149,42 @@ class Product {
         return await product.create({...this, _id: product_id})   // this -> chính là các thuộc tính của Class
     }
 
+    // Update Product
+    async updateProduct(productId, bodyUpdate) {
+        return await updateProductById({productId, bodyUpdate, model: product})
+    }
+
 }
 
 
 // Define sub-class for different product types Clothing
 class Clothing extends Product {
     async createProduct() {
-        const newClothing = await clothing.create(this.product_attributes)
+        const newClothing = await clothing.create({...this.product_attributes, product_shop: this.product_shop})
         if(!newClothing) {
             throw new BadRequestError('Create new Clothing error!')
         }
 
-        const newProduct = await super.createProduct()
+        const newProduct = await super.createProduct(newClothing._id)
         if(!newProduct) throw new BadRequestError('Create new Product error!')
       
         return newProduct
+    }
+
+    async updateProduct(productId) {
+        // 1. Remove attr has null underfined
+        let objectParams = removeUndefinedObject(this)
+        // 2. check xem update o cho nao?
+        if (objectParams.product_attributes) {
+            await updateProductById({
+                productId, 
+                bodyUpdate: updateNestedObjectParser(objectParams.product_attributes), 
+                model: clothing
+            })
+        }
+
+        const updateProduct = await super.updateProduct(productId, updateNestedObjectParser(objectParams))
+        return updateProduct
     }
 }
 
@@ -149,8 +195,6 @@ class Electronic extends Product {
             ...this.product_attributes,
             product_shop : this.product_shop
         })
-
-        console.log('== newElectronic ==', newElectronic)
 
         if(!newElectronic) {
             throw new BadRequestError('Create new Electronic error!')
@@ -174,7 +218,7 @@ class Furniture extends Product {
             throw new BadRequestError('Create new Furniture error!')
         }
 
-        const newProduct = await super.createProduct()
+        const newProduct = await super.createProduct(newFurniture._id)
         if(!newProduct) throw new BadRequestError('Create new Product error!')
       
         return newProduct

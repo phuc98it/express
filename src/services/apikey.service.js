@@ -15,7 +15,6 @@ const createApiKey = () => {
         key: crypto.randomBytes(64).toString('hex'),
         permissions: ['0000']
     })
-    console.log(newKey)
 
     return newKey
 }
