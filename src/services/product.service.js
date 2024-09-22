@@ -2,6 +2,7 @@
 
 const { product, clothing, electronic, furniture } = require('../models/product.model')
 const { BadRequestError } = require('../core/error.response')
+const { findAllDraftsForShop, publishProductByShop, findAllPublishForShop, unpublishProductByShop, searchProducts } = require('../models/repositories/product.repository')
 
 // Defin Factory class to create product
 class ProductFactory {
@@ -26,7 +27,7 @@ class ProductFactory {
 
     static async createProduct(type, payload) {
         const productClass = ProductFactory.productRegistry[type]
-        if(!product_type) throw new BadRequestError(`Invalid Product Types ${type}`)
+        if(!productClass) throw new BadRequestError(`Invalid Product Types ${type}`)
 
         return new productClass(payload).createProduct()
     }
@@ -36,6 +37,48 @@ class ProductFactory {
     ProductFactory.registerProductType('Electronic', Electronic)
     ProductFactory.registerProductType('Furniture', Furniture)
      */
+
+
+    // Get Drafts
+    static async findAllDraftsForShop({
+        product_shop,
+        limit = 50,
+        skip = 0
+    }) {
+        const query = { product_shop, isDraft: true }
+        return await findAllDraftsForShop({query, limit, skip})
+    }
+
+    // Set Pubish
+    static async publishProductByShop({
+        product_shop,
+        product_id
+    }) {
+        return await publishProductByShop({product_shop, product_id})
+    }
+
+    // Pubish
+    static async findAllPublishsForShop({
+        product_shop,
+        limit = 50,
+        skip = 0
+    }) {
+        const query = { product_shop, isDraft: false }
+        return await findAllPublishForShop({query, limit, skip})
+    }
+
+    // Set UnPubish
+    static async unpublishProductByShop({
+        product_shop,
+        product_id
+    }) {
+        return await unpublishProductByShop({product_shop, product_id})
+    }
+
+    // Search Product
+    static async searchProducts({keyInsert}) {
+        return await searchProducts({keyInsert})
+    }
 }
 
 // Define basic product class
@@ -65,6 +108,7 @@ class Product {
     async createProduct(product_id) {
         return await product.create({...this, _id: product_id})   // this -> chính là các thuộc tính của Class
     }
+
 }
 
 
