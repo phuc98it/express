@@ -10,6 +10,9 @@ const { authentication, authenticationV2 } = require('../../auth/auth.Utils')
 
 // Search
 router.get('/search/:keySearch', asyncHandler(productController.searchProducts))
+router.get('', asyncHandler(productController.findAllProducts))
+router.get('/:product_id', asyncHandler(productController.findProduct))
+
 
 // Authentication
 router.use(authentication)

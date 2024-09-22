@@ -2,7 +2,7 @@
 
 const { product, clothing, electronic, furniture } = require('../models/product.model')
 const { BadRequestError } = require('../core/error.response')
-const { findAllDraftsForShop, publishProductByShop, findAllPublishForShop, unpublishProductByShop, searchProducts } = require('../models/repositories/product.repository')
+const { findAllDraftsForShop, publishProductByShop, findAllPublishForShop, unpublishProductByShop, searchProducts, findAllProducts, findProduct } = require('../models/repositories/product.repository')
 
 // Defin Factory class to create product
 class ProductFactory {
@@ -78,6 +78,21 @@ class ProductFactory {
     // Search Product
     static async searchProducts({keyInsert}) {
         return await searchProducts({keyInsert})
+    }
+
+    static async findAllProducts({
+        limit = 50,
+        sort = 'ctime',
+        page = 1,
+        filter = { isPublished: true }
+    }) {
+        return findAllProducts({limit, sort, filter, page, 
+            select: ['product_name', 'product_price', 'product_thumb']
+        })   
+    }
+
+    static async findProduct({product_id}) {
+        return await findProduct({product_id, unSelect: ['__v', 'product_variations']})
     }
 }
 
