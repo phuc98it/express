@@ -2,8 +2,18 @@
 
 const { product, clothing, electronic, furniture } = require('../models/product.model')
 const { BadRequestError } = require('../core/error.response')
-const { findAllDraftsForShop, publishProductByShop, findAllPublishForShop, unpublishProductByShop, searchProducts, findAllProducts, findProduct, updateProductById } = require('../models/repositories/product.repository')
+const { 
+    findAllDraftsForShop, 
+    publishProductByShop, 
+    findAllPublishForShop, 
+    unpublishProductByShop, 
+    searchProducts, 
+    findAllProducts, 
+    findProduct, 
+    updateProductById 
+} = require('../models/repositories/product.repository')
 const { removeUndefinedObject, updateNestedObjectParser } = require('../utils')
+const { insertInventory } = require('../models/repositories/inventory.repository')
 
 // Defin Factory class to create product
 class ProductFactory {
@@ -146,7 +156,19 @@ class Product {
 
     // Create new Product
     async createProduct(product_id) {
-        return await product.create({...this, _id: product_id})   // this -> chính là các thuộc tính của Class
+        console.log("Id Shop ::: [1]", this.product_shop)
+        const newProduct = await product.create({...this, _id: product_id})   // this -> chính là các thuộc tính của Class
+        if (newProduct) {
+            // add product_stock in inventory collection
+            console.log("Id Shop ::: [3]", this.product_shop)
+            await insertInventory({
+                productId: newProduct._id,
+                shopId: this.product_shop,
+                stock: this.product_quantity
+            })
+        }
+
+        return newProduct
     }
 
     // Update Product
