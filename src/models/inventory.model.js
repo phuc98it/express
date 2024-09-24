@@ -10,7 +10,7 @@ const apiKeySchema = new Schema({
     inven_location: { type: String, default: 'unKnown' },
     inven_stock: { type: Number, require: true },
     inven_shop: { type: Schema.Types.ObjectId, ref: 'Shop'},
-    inven_reservations: { type: Array, default: [] }        // đặt hàng trước
+    inven_reservations: { type: Array, default: [] }        // đặt hàng trước - chưa thanh toán
 
     /**         Reservation
      * cartId: ,

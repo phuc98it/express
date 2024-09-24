@@ -118,7 +118,7 @@ class ProductFactory {
         filter = { isPublished: true }
     }) {
         return findAllProducts({limit, sort, filter, page, 
-            select: ['product_name', 'product_price', 'product_thumb']
+            select: ['product_name', 'product_price', 'product_thumb', 'product_shop']
         })   
     }
 
