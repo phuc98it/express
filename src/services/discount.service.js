@@ -149,7 +149,7 @@ class DiscountService {
     }
 
     // Apply Discount Code
-    static async getDiscountAmount({codeId, shopId, products}) {
+    static async getDiscountAmount({codeId, userId, shopId, products}) {
         const foundDiscount = await checkDiscountExists({
             model: discount,
             filter: {
