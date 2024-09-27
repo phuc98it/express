@@ -150,8 +150,7 @@ class Product {
         this.product_quantity = product_quantity,
         this.product_type = product_type,
         this.product_shop = product_shop,
-        this.product_attributes = product_attributes,
-        this.product_quantity = product_quantity
+        this.product_attributes = product_attributes
     }
 
     // Create new Product

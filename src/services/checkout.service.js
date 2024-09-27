@@ -7,6 +7,7 @@ const {
 } = require('../core/error.response')
 const { checkProductByServer } = require("../models/repositories/product.repository")
 const { getDiscountAmount } = require("./discount.service")
+const { acquireLock, releaseLock } = require("./redis.service")
 
 /*
 {
@@ -59,6 +60,7 @@ class CheckoutService {
 
         // Tinh tong tien bill
         for (let i = 0; i < shop_order_ids.length; i++) {
+            // Tinh toan theo Shop
             const { shopId, shop_discounts = [], item_products = [] } = shop_order_ids[i]
 
             console.log('[-2-] ::: ', item_products)
@@ -68,7 +70,7 @@ class CheckoutService {
             console.log(`checkProductServer ::: `, checkProductServer)
             if(!checkProductServer[0]) throw new BadRequestError('order wrong !!!')
 
-            // tong tien don hang
+            // tong tien don hang cua Shop
             const checkoutPrice = checkProductServer.reduce((acc, product) => {
                 return acc + (product.quantity * product.price)
             }, 0)
@@ -121,6 +123,75 @@ class CheckoutService {
             shop_order_ids_new,
             checkout_order
         }
+    }
+
+    static async orderByUser({
+        shop_order_ids,
+        cartId,
+        userId,
+        user_address = {},
+        user_payment = {}
+    }) {
+        const { shop_order_ids_new, checkout_order } = await CheckoutService.checkoutReview({
+            cartId,
+            userId,
+            shop_order_ids
+        })
+
+        // Check lai mot lan nua - xem vuot ton kho hay khong
+        const products = shop_order_ids_new.flatMap(order => order.products)
+        console.log('[1] : ', products)
+
+        const acquireProduct = []
+        
+        for (let i = 0; i < products.length; i++) {
+            const { productId, quantity } = products[i];
+            const keyLock = await acquireLock(productId, quantity, cartId)
+            acquireProduct.push(keyLock ? true : false)
+
+            if(keyLock) {
+                await releaseLock()
+            }
+        }
+
+        // check - if co 1 san pham het hang trong kho
+        if (acquireProduct.includes(false)) {
+            throw new BadRequestError('Mot so san pham da duoc cap nhat, vui long quay lai gio hang ...')
+        }
+
+        const newOrder = await order.create({
+            order_userId: userId,
+            order_checkout: checkout_order,
+            order_shipping: user_address,
+            order_payment: user_payment,
+            order_products: shop_order_ids_new
+        })
+
+        // TH : new insert thanh cong -> remove product co trong cart
+        if(newOrder) {
+            //remove product in my cart
+        }
+
+        return newOrder
+    }
+
+    /**
+     * 1 - Query Order [Users]
+     */
+    static async getOrdersByUser() {
+        
+    }
+
+    static async getOneOrderByUser() {
+        
+    }
+
+    static async cancelOrderByUser() {
+        
+    }
+
+    static async udpateOrderStatusByShop() {
+        
     }
 }
 

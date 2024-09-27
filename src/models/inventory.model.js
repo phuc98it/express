@@ -8,7 +8,7 @@ const COLLECTION_NAME = 'Inventories'
 const apiKeySchema = new Schema({
     inven_productId: { type: Schema.Types.ObjectId, ref: 'Product'},
     inven_location: { type: String, default: 'unKnown' },
-    inven_stock: { type: Number, require: true },
+    inven_stock: { type: Number, require: true },           // = so luong san pham
     inven_shop: { type: Schema.Types.ObjectId, ref: 'Shop'},
     inven_reservations: { type: Array, default: [] }        // đặt hàng trước - chưa thanh toán
 

@@ -27,3 +27,15 @@ Khi đoạn code bị lặp 2 lần trở lên => phải chuyển đổi viết 
 
 3. Login.
     +) Mỗi lần login -> tạo ra 1 "refreshToken mới" và save refreshToken cũ vào refreshTokensUsed (đã sử dụng)
+
+
+checkout - review -> truoc khi 'order' (dat hang : reservation)
+
+Ton kho qua ban -> su dung acquireProduct - khoa lac quan
+
+Order :
+    1 - checkout review -> success
+    2 - create 'key' for req -> update inventory_reservation
+        (ai nắm giữ 'key' - được thực thi các công đoạn sau đó)
+    3 - create new order
+    4 - remove product in cart
