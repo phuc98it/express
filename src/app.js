@@ -15,6 +15,10 @@ app.use(express.urlencoded({
     extended: true
 }))
 
+// test redis pub-sub
+require('./tests/inventory.test')
+const productTest = require('./tests/product.test')
+productTest.purchaseProduct('productId:001', 10)
 
 // init db
 require('./dbs/init.mongodb')

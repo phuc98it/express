@@ -4,6 +4,10 @@ const express = require('express')
 const { apiKey, permission } = require('../auth/checkAuth')
 const { createApiKey } = require('../services/apikey.service')
 const router = express.Router()
+const { pushToLogDiscord } = require('../middlewares/index')
+
+// Add Log -> to Discord
+router.use(pushToLogDiscord)
 
 router.get('/', (req, res, next) => {
     return res.status(200).json({
