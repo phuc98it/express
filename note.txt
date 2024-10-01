@@ -39,3 +39,96 @@ Order :
         (ai nắm giữ 'key' - được thực thi các công đoạn sau đó)
     3 - create new order
     4 - remove product in cart
+
+
+*) Đối với hệ thống lớn, việc 'Delete' không nên đánh dấu -> mà nên đẩy hẳn sang 1 DB khác.
+
+RabbitMQ: 
+    1. Connect RMQ và tạo channel.
+    2. Khai báo Exchange và Queue.
+    3. Binding với 2 params : Exchange -> Queue
+    4. Send Message : channel.sendToQueue(...)
+    5. Recived Message : channel.consume(...)
+
+
+Thư rác: hộp thư chết - Áp dụng DLX
+    - Những Job ko được xử lí bị lỗi
+    - Những Job mấy quá nhiều thời gian (TTL)
+    - Những Job ko vào được Queue       (limited queue) 
+
+
+keywords:
+    + durable : true -> đảm bảo 'message' ko bị mất khi hệ thống dead.  (save to disk)
+    + noAck : false -> nhận 'tín hiệu' xác nhận, khi 1 task vụ xử  lí thành công.
+    + deadLetterExchange : nơi tiếp nhận các 'message' bị lỗi.
+    + deadLetterRoutingKey : định tuyến nơi đến của các 'message' bị lỗi.
+    + channel.nack(...) : thừa nhận 'lỗi' - và đẩy 'message' bị lỗi tới Hotfix
+    + channel.prefetch(1) : đảm bảo tính tuần tự của 'message' khi xử lí (giống transactions)
+
+
+*) Scale bài toán 'Notification': toàn bộ Notif sẽ đẩy vào Message Queue.
+    1. Đo lường thói quen User.
+    2. Đối với User tương tác nhiều -> thì nên push.
+    3. Đối với User ít hoạt động -> thì nên pull - khi User login vào hệ thống.
+
+*) Bài toán Nested : ứng dụng cho 'Comment'
+    - Áp dụng kiểu cây và đánh số  trái - phải
+
+== Setup MySQL Master & Slave ==
+1. tạo container: chạy trên cùng 1 network 'my_master_slave_mysql'
+    + docker run -d --name mysql8-master --network my_master_slave_mysql -p 8811:3306 -e MYSQL_ROOT_PASSWORD=tipjs mysql:8.0
+    + docker run -d --name mysql8-slave --network my_master_slave_mysql -p 8822:3306 -e MYSQL_ROOT_PASSWORD=tipjs mysql:8.0
+
+2. Sửa đổi config (/etc/my.cnf) :
+    2.1 chỉnh sửa file dưới local: copy file my.cnf từ container về  local -> edit. (log_bin=mysql-bin | server-id=1 | server-id=2)
+    2.2 sau khi edit -> đẩy chèn trở lại docker container.
+
+3. Setup Slave đồng bộ Data với Master:
+    - Từ Slave cấu hình đồng bộ data với Master
+        docker exec -it mysql8-slave bash
+        mysql -uroot -p
+        > START SLAVE;
+            CHANGE MASTER TO    (set thông tin Master - để đồng bộ)
+            MASTER_HOST='172.19.0.2',
+            MASTER_PORT=3306,
+            MASTER_USER='root',
+            MASTER_PASSWORD='tipjs',
+            master_log_file='mysql-bin.000001',     (check 'show master status' - bên db Master)
+            master_log_pos=366,                     (check 'show master status' - bên db Master)
+            master_connect_retry=60,
+            GET_MASTER_PUBLIC_KEY=1;
+
+        > SHOW SLAVE STATUS/G; (check 2 field 'Slave_IO_Running' và 'Slave_SQL_Running')
+            Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+
+=> Connect đồng bộ dữ liệu giữa Master và Slave.
+
+
+=== CreatePool - tăng tốc ghi cả triệu record nhanh gấp hàng chục lần ===
+NodeJS cung cấp lib mysql2.createPool -> giúp cho việc import triệu record nhanh chóng.
+
+== Partition ==
+- Phân vùng dữ liệu : chia dữ liệu thành các vùng - dễ dàng quản lí và truy xuất.
+    + Tránh Select * from <Table> , mà ko có 1 điều kiện nào -> hệ thống sẽ scan toàn bộ -> partition ko thực thi ở đây.
+    + Luôn phải có 'điều kiện' với phạm vi của Partition - để  hệ thống truy xuất cho nhanh.
+
+- Tự động phân vùng dữ liệu:
+    1. Viết Procedure - hàm định nghĩa cách hệ thống hoạt động tạo tự động Partition.
+    2. Tạo Event - set Cronjob định kì mỗi tháng chạy 1 lần -> để tạo tự động partition.
+
+== Đánh INDEX ==
+Lưu ý: đặc biệt đối với việc đánh chỉ mục tổ hợp composite.
+    - Thuộc tính ngoài cùng bên trái là mốc chỉ mục tổ hợp.
+        -> Muốn thực thi câu lệnh có thực hiện index chỉ mục tổng hợp, thì bắt buộc phải có thuộc tính ngoài cùng bên trái trong câu điều kiện.
+
+    +) các thuộc tính còn lại (ngoài chỉ mục ngoài cùng bên trái) trong chỉ mục tổng hợp,
+     muốn thực thi đc idx thì câu lệnh SELECT chỉ đc lấy trong các trường nằm trong chỉ mục tổ hợp,
+     còn không sẽ ko thực thi idx.
+
+- Mệnh đề  AND:
+    Nếu kết hợp chỉ mục tổ hợp và chỉ mục khác -> câu lệnh thực thi sẽ không áp dụng với bất kì chỉ mục nào.
+
+
+- Mệnh để OR:
+    Nếu kết hợp OR giữa các chỉ mục với nhau -> câu lệnh thực thi với chỉ mục tổ hợp của các chỉ mục trên.
