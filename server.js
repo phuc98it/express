@@ -1,8 +1,6 @@
 require('dotenv').config()
 const app = require("./src/app")
 
-console.log('env ::: ', process.env.PORT)
-
 const PORT =  process.env.PORT
 
 const server = app.listen(PORT, () => {
