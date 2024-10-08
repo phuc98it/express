@@ -132,3 +132,11 @@ Lưu ý: đặc biệt đối với việc đánh chỉ mục tổ hợp composi
 
 - Mệnh để OR:
     Nếu kết hợp OR giữa các chỉ mục với nhau -> câu lệnh thực thi với chỉ mục tổ hợp của các chỉ mục trên.
+
+
+
+keywords: tìm hiểu 
+    + aggregate(...)
+    + $unwind
+    + $lookup
+    + $project
