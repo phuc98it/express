@@ -140,3 +140,30 @@ keywords: tìm hiểu
     + $unwind
     + $lookup
     + $project
+
+
+LOGS : use package 'Winston'
+    ? Nếu ghi quá nhiều logs - dung lượng quá nhiều.
+    -> Giải pháp : dùng package 'winston-daily-rotate-file'
+        +) xét 'maxSize' cho dung lượng file -> vượt quá chia sang file khác.
+        +) xét 'maxFiles' thời gian tồn tại của file Log -> quá hạn file log bị xóa.
+        +) zippedArchive: true  - nén file log và save trước khi xóa file.
+    ? Quản lí log - theo ngày/tháng/năm giờ/phút/giây -> format
+    ? Logs : giúp hệ thống xác định vấn đề  và là công cụ mạnh mẽ để giải quyết các tranh cãi đổ  lỗi cho nhau.
+
+    - requestId: đại diện cho tiến trình process của User tương tác với hệ thống.
+
+    - Các bước ghi Logs:
+        1. descript
+        2. nếu error -> ghi log
+        3. research  -> result của request đó.
+
+    - Các cấp độ logs: error -> warning -> debug -> info -> requestId or traceId
+        + error : các lỗi nghiêm trọng, ảnh hưởng đến hệ thống.
+        + warning : cảnh báo các lỗi chung, ít ảnh hưởng đến doanh nghiệp.
+        + debug : phát triển dữ liệu chạy trong Logic chính.
+        + info : ghi lại các thông tin quan trọng để khắc phục sự cố.
+        + requestId : thông tin chi tiết nhất, thông thường ghi vào file log.
+    => vì "error" là cấp độ cao nhất nên mọi cấp độ khác đều phải chứa log 'error'
+
+     

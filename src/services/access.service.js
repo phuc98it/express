@@ -128,7 +128,7 @@ class AccessService {
         if(!foundShop) throw new BadRequestError('Shop not registered')
         
         // 2. Match password
-        const match = bcrypt.compare(password, foundShop.password)
+        const match = await bcrypt.compare(password, foundShop.password)
         if(!match) throw new AuthFailureError('Authentication Error')
 
         // 3. create privateKey and publicKey

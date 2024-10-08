@@ -10,6 +10,8 @@ const ReasonStatusCode = {
     CONFLICT: 'Conflict error'
 }
 
+// const logger = require('../logger/winston.log')
+// const myLogger = require('../logger/mylogger.log')
 const {
     StatusCodes,
     ReasonPhrases
@@ -18,7 +20,13 @@ const {
 class ErrorResponse extends Error {
     constructor(message, status) {
         super(message)
-        this.statusCode = status
+        this.status = status
+        this.now = Date.now()
+
+        // Logs use Winston
+        // logger.error(`${this.status} - ${this.message}`)    // simple
+
+        // myLogger.error(this.message, ['', '', {error: 'Bad request error'}])
     }
 }
 
