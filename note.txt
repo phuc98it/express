@@ -167,3 +167,62 @@ LOGS : use package 'Winston'
     => vì "error" là cấp độ cao nhất nên mọi cấp độ khác đều phải chứa log 'error'
 
      
+SPU (Standard Product Unit) : đơn vị sản phẩm tiêu chuẩn.   (= 1NF)
+    +) Iphone   - Apple
+    +) Giày     - Adidas
+    +) Áo Thun  - Levi's
+
+SKU : kết hợp của các giá trị thuộc tính khác nhau trong SPU    
+    (có thể  coi là các record trong table - SPU)
+
+==> 1 SPU = N SKU ::: SKU là đơn vị nhỏ nhất trong hệ thống -> đại diện cho 1 Object cụ thể.
+
+/spu/new ::: req.body {
+    "product_name" : "Name 1",
+    "product_thumb" : "<link_image>",
+    "product_description": "Mô tả sản phẩm",
+    "product_price": 111.000,
+    "product_quantity": 23,
+    "product_category": [100001, 100002, 100003],
+    "product_attributes": [{
+        "attribute_id": 200005,
+        "attribute_values": [
+            { "value_id": 1 },
+            { "value_id": 2 }
+        ]
+    }],
+    "product_variations": [
+        {
+            "images": [],
+            "name": "color",
+            "options": ["red", "green"]     // [0, 1]
+        },
+        {
+            "images": [],
+            "name": "size",
+            "options": ["S", "M"]           // [0, 1]
+        }
+    ],
+    "sku_list": [
+        {
+            "sku_tier_idx": [0, 0],         // red - S
+            "sku_price": "1000",
+            "sku_stock": 10
+        },
+        {
+            "sku_tier_idx": [0, 1],         // red - M
+            "sku_price": "1001",
+            "sku_stock": 11
+        },
+        {
+            "sku_tier_idx": [1, 0],         // green - S
+            "sku_price": "1002",
+            "sku_stock": 12
+        },
+        {
+            "sku_tier_idx": [1, 1],         // green - M
+            "sku_price": "1003",
+            "sku_stock": 13
+        }
+    ]
+}

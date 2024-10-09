@@ -10,6 +10,8 @@ const { authentication, authenticationV2 } = require('../../auth/auth.Utils')
 
 // Search
 router.get('/search/:keySearch', asyncHandler(productController.searchProducts))
+router.get('/sku/select_variation', asyncHandler(productController.findOneSku))
+router.get('/spu/get_spu_info', asyncHandler(productController.findOneSpu))
 router.get('', asyncHandler(productController.findAllProducts))
 router.get('/:product_id', asyncHandler(productController.findProduct))
 
@@ -19,6 +21,8 @@ router.use(authentication)
 
 // product
 router.post('/', asyncHandler(productController.createProductController))
+router.post('/spu/new', asyncHandler(productController.createSpu))
+
 
 // Set update
 router.put('/publish/:id', asyncHandler(productController.publishProductByShop))
