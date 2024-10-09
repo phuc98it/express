@@ -2,7 +2,7 @@
 
 const { BadRequestError } = require("../core/error.response");
 const { SuccessResponse } = require("../core/success.response")
-const { uploadImageFromUrl, uploadImageFromLocal } = require("../services/upload.service")
+const { uploadImageFromUrl, uploadImageFromLocal, uploadImageFromLocalFiles } = require("../services/upload.service")
 
 class UploadController {
     uploadFile = async (req, res, next) => {
@@ -21,6 +21,16 @@ class UploadController {
             metadata: await uploadImageFromLocal({
                 path: file.path
             })
+        }).send(res);
+    }
+
+    uploadImageFromLocalFiles = async (req, res, next) => {
+        const { files } = req
+        if(!files.length) throw new BadRequestError('Files missing')
+
+        new SuccessResponse({
+            message: 'upload successfully uploaded!',
+            metadata: await uploadImageFromLocalFiles({files})
         }).send(res);
     }
 }

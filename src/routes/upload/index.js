@@ -13,6 +13,7 @@ const { uploadToDisk } = require('../../configs/multer.config')
 
 router.post('/product', asyncHandler(uploadController.uploadFile))
 router.post('/product/thumb', uploadToDisk.single('file'), asyncHandler(uploadController.uploadFileThumb))
+router.post('/product/multiple', uploadToDisk.array('files', 3), asyncHandler(uploadController.uploadImageFromLocalFiles))
 
 // Query
 
