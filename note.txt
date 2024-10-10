@@ -226,3 +226,45 @@ SKU : kết hợp của các giá trị thuộc tính khác nhau trong SPU
         }
     ]
 }
+
+KeyCDN : Content delivery network   -> test tốc độ phản hồi của mỗi khu vực 'region'.
+
+=== AWS ===
+
+policies: chinh sach
+	- xét quyền hạn cho user truy cập vào tài nguyên (resource)
+
+cloudfront :  phân phối tài nguyên tới nhiều vùng 'region' khác nhau.
+	
+	
+Ex :
+	1. Tạo resource với S3	: demo-s3
+	2. Tạo policy cho 'demo-s3'	: policy-demo-s3
+		(get/put/delete object)
+	3. Tạo User 			: user-demo-bucket-s3
+		(cho phép dùng tài nguyên s3)
+		+) Attach policy 'policy-demo-s3'
+		
+		+) Create access key -> third-party services
+			=> ACCESS_KEY && SECRET_KEY
+	4. use 'aws-sdk' tương tác với hệ thống.
+
+    5. cloudfront - create distribution
+        +) select resource ở Origin domain. (chia sẻ tài nguyên)
+        +) Origin access -> Legacy access identities -> create OAI (Origin access identity) -> Yes, update the bucket policy
+        => Thay thế  : url_image_s3 = Distribution domain name => access Image and up speed res on regions.
+
+
+    6. Security: setup 'key group' trong cloudfront.
+        +) cd folder 'src/keys' (nơi chứa key)
+        +) openssl version
+        +) openssl genrsa -out private_key.pem 2048                     (KEY Private)
+            (Server giữ KEY_PRIVATE)
+        
+        +) openssl rsa -pubout -in private_key.pem -out public_key.pem  (KEY Public)
+            (Cloudfront giữ KEY_PUBLIC)
+
+        6.1 Create "public key" in cloudfront - với content của KEY_PUBLIC
+        6.2 Create "key group"  = add public key.
+        6.3 Edit Instance - cloudfront distribution.
+            - cloudfront -> behaviors -> select item -> Edit behavior -> Restrict viewer access : YES -> Trusted key groups (recommended) -> Add key groups -> Save Change
