@@ -268,3 +268,19 @@ Ex :
         6.2 Create "key group"  = add public key.
         6.3 Edit Instance - cloudfront distribution.
             - cloudfront -> behaviors -> select item -> Edit behavior -> Restrict viewer access : YES -> Trusted key groups (recommended) -> Add key groups -> Save Change
+
+EC2: Server - Ubuntu và MySQL - Amazon Linux
+    1. Create Instance EC2: 
+        Lauch Instance -> ... -> Create new Key Pair (download to .ssh) -> Edit Firewall
+            +) Xét security name -> Edit Inbound rules : HTTP - Anywhere-IPv4
+            +) Type - Protocol - Port range : setup giao thức và port - cho phép bên ngoài truy cập vào EC2.
+            +) Source type  - Source - Description : phạm vi đc phép trụy cập qua Type.
+        Connect: ssh -i "server-shopdemo-key-pair.pem" ubuntu@ec2-13-212-214-247.ap-southeast-1.compute.amazonaws.com
+
+    2. Tương tác EC2:
+        sudo apt-get update
+        sudo apt-get install nginx
+        curl localhost                  -> check nginx
+        /var/www/html/index.nginx-debian.html   (nơi localhost -> trở tới file)
+
+    *) Quản lí toàn bộ file KEY.pem -> đều để vào trong folder ~/.ssh/
