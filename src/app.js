@@ -33,8 +33,18 @@ app.use((req, res, next) => {
     next()
 })
 
-// init db
+// init DB
 require('./dbs/init.mongodb')
+
+// init Redis 
+const initRedis = require('./dbs/init.redis')
+initRedis.initRedis()
+
+// init Elasticsearch
+const initElasticsearch = require('./dbs/init.elasticsearch')
+initElasticsearch.init({
+    ELASTICSEARCH_IS_ENABLED: true
+})
 
 checkOverload()
 

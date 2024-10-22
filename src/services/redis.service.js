@@ -3,6 +3,8 @@
 const redis = require('redis')
 const { promisify } = require('util')       // promisify - chuyen doi ham co ban -> promise
 const { reservationInventory } = require('../models/repositories/inventory.repository')
+
+/*
 const redisClient = redis.createClient()     //redis.createClient();
 
 redisClient.ping((err, result) => {
@@ -12,6 +14,10 @@ redisClient.ping((err, result) => {
         console.log(`Connected to Redis`)
     }
 })
+*/
+
+const { getRedis } = require('../dbs/init.redis')
+const { instanceConnect : redisClient } = getRedis()
 
 const pexpire = promisify(redisClient.pexpire).bind(redisClient)    // => promise(...)
 const setnxAsync = promisify(redisClient.setnx).bind(redisClient) // => promise(...)
@@ -34,12 +40,12 @@ const acquireLock = async (productId, quantity, cartId) => {
                 cartId
             })
 
-            if(isReservation.modifiedCount) {
-                await pexpire(key, expireTime)      // giai phong key
+            if(isReservation.modifiedCount) {       // update Inventory trong DB thành công -> giải phóng key
+                await pexpire(key, expireTime)      // giai phong key ở redis
                 return key
             }
 
-            return key
+            return key                              // update Inventory trong DB không thành công -> giữ lại 'key'
         } else {
             // retry lai - moi lan cach nhau 0.05s
             await new Promise((resolve) => setTimeout(resolve, 50))
