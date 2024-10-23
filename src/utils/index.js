@@ -50,6 +50,16 @@ const randomProductId = _ => {
     return Math.floor(Math.random() * 8999999 + 100000)
 }
 
+// replacePlaceholder
+const replacePlaceholder = (template, params) => {
+    Object.keys(params).forEach(k => {
+        const placeholder = `{{${k}}}`
+        template = template.replace(new RegExp(placeholder, 'g'), params[k])
+    })
+
+    return template
+}
+
 module.exports = {
     getInfoData,
     getSelectData,
@@ -57,5 +67,6 @@ module.exports = {
     removeUndefinedObject,
     updateNestedObjectParser,
     convertToObjectIdMongodb,
-    randomProductId
+    randomProductId,
+    replacePlaceholder
 }

@@ -41,10 +41,10 @@ const initRedis = require('./dbs/init.redis')
 initRedis.initRedis()
 
 // init Elasticsearch
-const initElasticsearch = require('./dbs/init.elasticsearch')
-initElasticsearch.init({
-    ELASTICSEARCH_IS_ENABLED: true
-})
+// const initElasticsearch = require('./dbs/init.elasticsearch')
+// initElasticsearch.init({
+//     ELASTICSEARCH_IS_ENABLED: true
+// })
 
 checkOverload()
 
